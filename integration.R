@@ -1,16 +1,21 @@
-
-
+library(deSolve)
 #easiest to make grid sized as close to the diameter of the roo. big as the the diameter of the root:
 
 # the root is attached to the x-pane of the glass
 # y is horizontal depth
 # z is vertical depth
+setwd("C:\\Users/sgerber/OneDrive - University of Florida/Documents/Students/Amanda/RI-model-test/root-injection-test/")
+source("tendency.R")
 
 r0 = 0.5 #enter radius of root
 
 L  =  10#length of box
 W  =  10#horizontal depth
 H  =  10 #vertical depth
+
+#temporal grid setup
+
+time = seq(0,3600,1200)
 
 #spatial grid setup in a way that the box size is the smallest possible size to 
 # the root cross section, and that the root is completely in one box
@@ -64,20 +69,30 @@ V_free[mid,1,] = (dx*dy*dz - V_straw)*porewater #special volume in cells where t
 
 
 #parameters:
-pars=c(D=1e-6,porewater=porewater)
+secperyears= 86400*365
+pars=c(D=1e-6,porewater=porewater,
+       cue=0.5,uptake=0.2/secperyears,
+       death=0.033/secperyears,
+       basemin=0.02/15/secperyears) #2percent carbon, 15years turnover
+
 
 #initial conditions
 c0 = array(data=0,dim=c(nx,ny,nz))
+m0 = c0
+
 #input from root exudates
 input = 0
 flux_in = weight*input*dz/L  #mol s-1 in each cell
 c0[mid,1,] = flux_in/V_free[mid,1,]
 c0[mid,1,] = 1 #right now just placeholder
+
+m0[] = pars["basemin"]/pars["death"] #equilibrium with base mineralization
 times=seq(0,3600,600)
 
-a = dcdt(0,c0,x,y,z,dx,dy,dz,pars,Vfree)
+state0 = c(as.vector(c0),as.vector(m0))
+
+a = dcdt(0,state0,dx,dy,dz,pars,V_free)
 stop()
 
-result=ode.3D(y=c0,times=times,nspec=1,dimens=c(nx,ny,nz),method='rk4',x=x,y=y,z=z,dx=dx,dy=dy,dz=dz)
-
+result=ode.3D(y=state0,func=dcdt,times=times,nspec=2,dimens=c(nx,ny,nz),method='rk4',dx=dx,dy=dy,dz=dz,parms=pars,V_free=V_free)
 
