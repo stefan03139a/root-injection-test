@@ -42,8 +42,9 @@ nz = round(H/(2*r0))# no constraints needed, just make sure grid size is approxi
 dz = H/nz
 z = seq(0.5*dz, H-0.5*dz,dz)
 
-porewater = 0.5 # [unitless] fraction of volume where diffusion can occur
-
+#soil
+porewater = 0.5*0.7 # [unitless] fraction of volume where diffusion can occur
+BD = 1.1 #bulk density ug mm-3
 
 ### root setup ######
 #####################
@@ -79,6 +80,11 @@ V_free[mid,1,] = (dx*dy*dz - V_straw)*porewater #special volume in cells where t
 secperyear= 86400*365
 Km_amp = 1  # relationship between eq. biomass and KM Km = Km_amp*M
 basemin = 0.02/15/secperyear #base mineralization [ug mm-3] -+> #2percent carbon, 15years turnover
+
+#base mineralization 1.1 ug CO2 hr-1 kg-1 -> Shelby
+basemin = 1.1/1000 * BD *12/44 /3600  # Shelby's base respiration [CO2 hr-1 kg-1]  #
+#d13 -20  
+
 death = 0.033/secperyear  #deathrate [s-1]
 cue  = 0.5  #carbon use efficiency [unitless]
 
@@ -108,14 +114,17 @@ pars=c(D=Diffusion_coef,
 c0 = array(data=0,dim=c(nx,ny,nz)) #doc concentration [ugC mm-3]
 m0 = c0 #microbial concentration [ugC mm-3]
 
+#equilibrium glucose concentration [ugC mm-3]
+c0 = pars["death"]/pars["uptake"]/pars["cue"]
+
 #input from root exudates
 input = 40.1 # amount of exudates added [ug]
 flux_in = weight*input*dz/L  #g in each cell
-c0[mid,1,] = flux_in/V_free[mid,1,] #concentration bump in each cell [ug mm-3]
+c0[mid,1,] = c0[mid,1,0] + flux_in/V_free[mid,1,] #concentration bump in each cell [ug mm-3]
 #c0[mid,1,] = 1 #right now just placeholder
 
 
-m0[] = pars["basemin"]*cue/pars["death"] #equilibrium with base mineralization
+m0[] = pars["basemin"]*pars["cue"]/pars["death"] #equilibrium with base mineralization
 times=seq(0,3600,600)
 
 #initial condition vector -> note that ode.3d requires concatenated vectors,
