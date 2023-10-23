@@ -49,21 +49,23 @@ dcdt = function(time,state,dx,dy,dz,pars,V_free){
     #boundary fluxes mass/time
     flux_x[1,,] = D/dx*(c[2,,] - c[1,,])*dy*dz*porewater
     flux_x[nx,,]= D/dx*(c[(nx-1),,] - c[nx,,])*dy*dz*porewater
-    flux_y[,1,] = D/dy*(c[,2,] - c[,2,])*dx*dz*porewater
+    flux_y[,1,] = D/dy*(c[,2,] - c[,1,])*dx*dz*porewater
     flux_y[,ny,]= D/dy*(c[,ny-1,] - c[,ny,])*dx*dz*porewater
     flux_z[,,1] = D/dz*(c[,,2] - c[,,1])*dx*dy*porewater
     flux_z[,,nz]=D/dz*(c[,,nz-1] - c[,,nz])*dx*dy*porewater
     
     
     #biology --------- currently no microbial interaction 
-    muptake = uptake*c
+    muptake = uptake * c * m 
     mdeath = m*death
+    depoly = Vprime*m/(m+Km)
     
-    dc = (flux_x + flux_y + flux_z)/V_free #- muptake + mdeath + basemin
+    
+    dc = (flux_x + flux_y + flux_z)/V_free - muptake + mdeath + depoly
     dm = muptake*cue - mdeath
     
         
-    return(list(c(dc,dm)))
+    return(list(c(as.vector(dc),as.vector(dm))))
     
   })
   
