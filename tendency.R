@@ -44,7 +44,7 @@ dcdt = function(time,state,dx,dy,dz,pars,V_free){
   with(as.list(pars),{
     flux_x[2:(nx-1),,] = D/dx*(c[3:nx,,] - 2*c[2:(nx-1),,] + c[1:(nx-2),,])*dy*dz*porewater
     flux_y[,2:(ny-1),] = D/dy*(c[,3:ny,] - 2*c[,2:(ny-1),] + c[,1:(ny-2),])*dx*dz*porewater
-    flux_z[,,2:(ny-1)] = D/dz*(c[,,3:nz] - 2*c[,,2:(nz-1)] + c[,,1:(nz-2)])*dx*dy*porewater
+    flux_z[,,2:(nz-1)] = D/dz*(c[,,3:nz] - 2*c[,,2:(nz-1)] + c[,,1:(nz-2)])*dx*dy*porewater
     
     #boundary fluxes mass/time
     flux_x[1,,] = D/dx*(c[2,,] - c[1,,])*dy*dz*porewater

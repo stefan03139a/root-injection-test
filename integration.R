@@ -115,12 +115,12 @@ c0 = array(data=0,dim=c(nx,ny,nz)) #doc concentration [ugC mm-3]
 m0 = c0 #microbial concentration [ugC mm-3]
 
 #equilibrium glucose concentration [ugC mm-3]
-c0 = pars["death"]/pars["uptake"]/pars["cue"]
+c0[] = pars["death"]/pars["uptake"]/pars["cue"]
 
 #input from root exudates
 input = 40.1 # amount of exudates added [ug]
 flux_in = weight*input*dz/L  #g in each cell
-c0[mid,1,] = c0[mid,1,0] + flux_in/V_free[mid,1,] #concentration bump in each cell [ug mm-3]
+c0[mid,1,] = c0[mid,1,] + flux_in/V_free[mid,1,] #concentration bump in each cell [ug mm-3]
 #c0[mid,1,] = 1 #right now just placeholder
 
 
