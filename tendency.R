@@ -56,12 +56,12 @@ dcdt = function(time,state,dx,dy,dz,pars,V_free){
     
     
     #biology --------- currently no microbial interaction 
-    muptake = uptake * c * m 
+    muptake = umax*c*m /(c+Kc)
     mdeath = m*death
     depoly = Vprime*m/(m+Km)
     
     
-    dc = (flux_x + flux_y + flux_z)/V_free - muptake + mdeath + depoly
+    dc = (flux_x + flux_y + flux_z)/V_free - muptake + f_doc*mdeath + depoly
     dm = muptake*cue - mdeath
     
         
